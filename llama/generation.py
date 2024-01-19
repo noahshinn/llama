@@ -104,8 +104,6 @@ class Llama:
         self,
         prompt_tokens: List[List[int]],
         max_gen_len: int = 1,
-        temperature: float = 0.0,
-        echo: bool = False,
     ) -> Tuple[List[List[int]], Optional[List[List[float]]]]:
         """
         Generate text sequences based on provided prompts using the language generation model.
@@ -113,10 +111,6 @@ class Llama:
         Args:
             prompt_tokens (List[List[int]]): List of tokenized prompts, where each prompt is represented as a list of integers.
             max_gen_len (int): Maximum length of the generated text sequence.
-            temperature (float, optional): Temperature value for controlling randomness in sampling. Defaults to 0.6.
-            top_p (float, optional): Top-p probability threshold for nucleus sampling. Defaults to 0.9.
-            logprobs (bool, optional): Flag indicating whether to compute token log probabilities. Defaults to False.
-            echo (bool, optional): Flag indicating whether to include prompt tokens in the generated output. Defaults to False.
 
         Returns:
             Tuple[List[List[int]], Optional[List[List[float]]]]: A tuple containing generated token sequences and, if logprobs is True, corresponding token log probabilities.
@@ -149,7 +143,7 @@ class Llama:
         all_probs = []
         for cur_pos in range(min_prompt_len, total_len):
             logits = self.model.forward(tokens[:, prev_pos:cur_pos], prev_pos)
-            probs = torch.softmax(logits[:, -1] / temperature, dim=-1)
+            probs = torch.softmax(logits[:, -1] / 0.6, dim=-1)
             all_probs.append(probs.cpu().tolist())
             next_token = torch.multinomial(probs, num_samples=1).squeeze(-1)
 
@@ -169,7 +163,7 @@ class Llama:
         out_tokens = []
         for i, toks in enumerate(tokens.tolist()):
             # cut to max gen len
-            start = 0 if echo else len(prompt_tokens[i])
+            start = len(prompt_tokens[i])
             toks = toks[start : len(prompt_tokens[i]) + max_gen_len]
             # cut to eos tok if any
             if self.tokenizer.eos_id in toks:

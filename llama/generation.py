@@ -129,7 +129,7 @@ class Llama:
         for cur_pos in range(min_prompt_len, total_len):
             logits = self.model.forward(tokens[:, prev_pos:cur_pos], prev_pos)
             probs = torch.softmax(logits[:, -1] / 0.6, dim=-1)
-            all_probs.append(probs.cpu().tolist())
+            all_probs.append(probs.squeeze().cpu().tolist())
             next_token = torch.multinomial(probs, num_samples=1).squeeze(-1)
 
             next_token = next_token.reshape(-1)

@@ -31,7 +31,7 @@ class CompletionPrediction(TypedDict, total=False):
 class ChatPrediction(TypedDict, total=False):
     generation: Message
     tokens: List[str]  # not required
-    logprobs: List[float]  # not required
+    probs: List[float]  # not required
 
 
 Dialog = List[Message]
@@ -105,21 +105,6 @@ class Llama:
         prompt_tokens: List[List[int]],
         max_gen_len: int = 1,
     ) -> Tuple[List[List[int]], Optional[List[List[float]]]]:
-        """
-        Generate text sequences based on provided prompts using the language generation model.
-
-        Args:
-            prompt_tokens (List[List[int]]): List of tokenized prompts, where each prompt is represented as a list of integers.
-            max_gen_len (int): Maximum length of the generated text sequence.
-
-        Returns:
-            Tuple[List[List[int]], Optional[List[List[float]]]]: A tuple containing generated token sequences and, if logprobs is True, corresponding token log probabilities.
-
-        Note:
-            This method uses the provided prompts as a basis for generating text. It employs nucleus sampling to produce text with controlled randomness.
-            If logprobs is True, token log probabilities are computed for each generated token.
-
-        """
         params = self.model.params
         bsz = len(prompt_tokens)
         assert bsz <= params.max_batch_size, (bsz, params.max_batch_size)
@@ -191,11 +176,7 @@ class Llama:
 
         """
         prompt_tokens = []
-        unsafe_requests = []
         for dialog in dialogs:
-            unsafe_requests.append(
-                any([tag in msg["content"] for tag in SPECIAL_TAGS for msg in dialog])
-            )
             if dialog[0]["role"] == "system":
                 dialog = [
                     {
@@ -243,14 +224,12 @@ class Llama:
             {
                 "generation": {
                     "role": "assistant",
-                    "content": self.tokenizer.decode(t)
-                    if not unsafe
-                    else UNSAFE_ERROR,
+                    "content": self.tokenizer.decode(t),
                 },
                 "tokens": [self.tokenizer.decode(x) for x in t],
                 "probs": probs_i,
             }
-            for t, probs_i, unsafe in zip(
-                generation_tokens, generation_probs, unsafe_requests
+            for t, probs_i in zip(
+                generation_tokens, generation_probs
             )
         ]

@@ -197,7 +197,7 @@ class Attention(nn.Module):
         self.n_rep = self.n_local_heads // self.n_local_kv_heads
         self.head_dim = args.dim // args.n_heads
 
-        self.wq = nn.Linear(args.dim, args.n_head * self.head_dim)
+        self.wq = nn.Linear(args.dim, args.n_heads * self.head_dim)
         self.wk = nn.Linear(
             args.dim,
             self.n_kv_heads * self.head_dim,

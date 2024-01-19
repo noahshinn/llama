@@ -413,7 +413,7 @@ class Transformer(nn.Module):
         self.n_layers = params.n_layers
 
         self.tok_embeddings = nn.Embedding(
-            params.vocab_size, params.dim, init_method=lambda x: x
+            params.vocab_size, params.dim
         )
 
         self.layers = torch.nn.ModuleList()

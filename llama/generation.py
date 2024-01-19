@@ -66,10 +66,6 @@ class Llama:
         Returns:
             Llama: An instance of the Llama class with the loaded model and tokenizer.
 
-        Raises:
-            AssertionError: If there are no checkpoint files in the specified directory,
-                or if the model parallel size does not match the number of checkpoint files.
-
         Note:
             This method initializes the distributed process group, sets the device to CUDA,
             and loads the pre-trained model and tokenizer.
@@ -81,9 +77,7 @@ class Llama:
         torch.manual_seed(seed)
 
         start_time = time.time()
-        checkpoints = sorted(Path(ckpt_dir).glob("*.pth"))
-        assert len(checkpoints) > 0, f"no checkpoint files found in {ckpt_dir}"
-        checkpoint = torch.load(ckpt_dir, map_location="cpu")
+        checkpoint = torch.load(os.path.join(ckpt_dir, "consolidated.00.pth"), map_location="cpu")
         with open(Path(ckpt_dir) / "params.json", "r") as f:
             params = json.loads(f.read())
 

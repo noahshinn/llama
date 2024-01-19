@@ -1,3 +1,5 @@
+# Modified to only handle llama-2-7b-chat for 1 generated token, and return the entire token space of probs
+
 # Llama 2
 
 We are unlocking the power of large language models. Our latest version of Llama is now accessible to individuals, creators, researchers and businesses of all sizes so that they can experiment, innovate and scale their ideas responsibly. 
